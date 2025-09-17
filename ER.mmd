@@ -1,0 +1,131 @@
+erDiagram
+  PORTO {
+    INT id_porto PK
+    VARCHAR codice
+    VARCHAR nome
+    VARCHAR citta
+    NUMERIC lat
+    NUMERIC lon
+  }
+  NAVE {
+    INT id_nave PK
+    VARCHAR operatore
+    VARCHAR tipo
+    VARCHAR codice_nave
+  }
+  CORSA {
+    BIGINT id_corsa PK
+    INT id_nave FK
+    INT id_porto_partenza FK
+    INT id_porto_arrivo FK
+    TIMESTAMP partenza_ts
+    TIMESTAMP arrivo_ts
+  }
+  PRENOTAZIONE {
+    BIGINT id_prenotazione PK
+    VARCHAR stato
+    VARCHAR canale
+    TIMESTAMP created_at
+  }
+  PASSEGGERO {
+    BIGINT id_passeggero PK
+    VARCHAR nome
+    VARCHAR cognome
+    VARCHAR documento
+    VARCHAR email
+  }
+  PREN_PAX {
+    BIGINT id_prenotazione PK, FK
+    BIGINT id_passeggero PK, FK
+    VARCHAR ruolo
+  }
+  TARIFFA {
+    INT id_tariffa PK
+    VARCHAR codice
+    VARCHAR descrizione
+    TEXT regole_cambio
+    TEXT regole_rimborso
+  }
+  BIGLIETTO {
+    BIGINT id_biglietto PK
+    BIGINT id_prenotazione FK
+    BIGINT id_passeggero FK
+    INT id_tariffa FK
+    VARCHAR codice_qr
+    VARCHAR stato
+    TIMESTAMP emesso_il
+  }
+  ITINERARIO {
+    BIGINT id_itinerario PK
+    BIGINT id_prenotazione FK
+  }
+  SEGMENTO {
+    BIGINT id_segmento PK
+    BIGINT id_itinerario FK
+    BIGINT id_corsa FK
+    SMALLINT ordine_segmento
+    INT porto_imbarco FK
+    INT porto_sbarco FK
+    VARCHAR classe_servizio
+  }
+  POSTO {
+    BIGINT id_posto PK
+    BIGINT id_corsa FK
+    VARCHAR sezione
+    VARCHAR numero
+    VARCHAR classe
+  }
+  ASSEGNAZIONE_POSTO {
+    BIGINT id_biglietto PK, FK
+    BIGINT id_posto PK, FK
+  }
+  PAGAMENTO {
+    BIGINT id_pagamento PK
+    BIGINT id_prenotazione FK
+    VARCHAR metodo
+    NUMERIC importo
+    CHAR valuta
+    VARCHAR esito
+    VARCHAR autorizzazione
+    TIMESTAMP created_at
+  }
+  VALIDAZIONE {
+    BIGINT id_validazione PK
+    BIGINT id_biglietto FK
+    BIGINT id_corsa FK
+    TIMESTAMP evento_il
+    VARCHAR esito
+    VARCHAR terminale
+  }
+  CAMBIO {
+    BIGINT id_cambio PK
+    BIGINT id_biglietto_orig FK
+    BIGINT id_biglietto_new FK
+    VARCHAR motivo
+    NUMERIC delta_importo
+    TIMESTAMP ts
+  }
+  RIMBORSO {
+    BIGINT id_rimborso PK
+    BIGINT id_biglietto FK
+    VARCHAR motivo
+    NUMERIC importo
+    VARCHAR stato
+    TIMESTAMP ts
+  }
+
+  PORTO ||--o{ CORSA : "partenza/arrivo"
+  NAVE  ||--o{ CORSA : "effettua"
+  PRENOTAZIONE ||--|| ITINERARIO : "ha"
+  ITINERARIO ||--o{ SEGMENTO : "composto da"
+  CORSA ||--o{ SEGMENTO : "serve"
+  PRENOTAZIONE ||--o{ BIGLIETTO : "genera"
+  PASSEGGERO ||--o{ PREN_PAX : "associato a"
+  PRENOTAZIONE ||--o{ PREN_PAX : "include"
+  TARIFFA ||--o{ BIGLIETTO : "applica"
+  POSTO ||--o{ ASSEGNAZIONE_POSTO : "assegna"
+  BIGLIETTO ||--o{ ASSEGNAZIONE_POSTO : "assegnato a"
+  PRENOTAZIONE ||--o{ PAGAMENTO : "regola"
+  BIGLIETTO ||--o{ VALIDAZIONE : "valida"
+  BIGLIETTO ||--o{ CAMBIO : "origine"
+  BIGLIETTO ||--o{ RIMBORSO : "rimborsato"
